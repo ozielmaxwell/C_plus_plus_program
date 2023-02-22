@@ -1,148 +1,84 @@
 #include <iostream>
+#include <stack>
+#include <queue>
+#include <string>
 
 using namespace std;
 
-
-class Queue
-{
-    private: 
-        int* Contents;
-        int Queue_size;
-        int Front, Back;
-    public:
-        //constructor function with default int of 5
-        Queue (int Queue_size = 5);
-        ~Queue(); //destructor
-        bool Empty() const;
-        bool Full() const;
-        bool Remove(int& front_element);
-        bool Add(const int& new_element);
-        void Display() const;
-
+struct Purchase {
+    string stockName;
+    int numOfShares;
+    double perSharePrice;
 };
 
+int main() {
+    stack<Purchase> lifo;
+    queue<Purchase> fifo;
 
-//constructor function
-Queue::Queue(int queue_size) :
-    Queue_size(queue_size),
-    Contents(new int[queue_size + 1]),
-    Front(0), Back(0)
-{};
+    // fill data structures with purchase data
+    Purchase purchase1 = {"MSFT", 100, 200.39};
+    Purchase purchase2 = {"GME", 500, 9.39};
+    Purchase purchase3 = {"MSFT", 250, 214.22};
+    Purchase purchase4 = {"MSFT", 300, 222.59};
+    lifo.push(purchase1);
+    lifo.push(purchase2);
+    lifo.push(purchase3);
+    lifo.push(purchase4);
+    fifo.push(purchase1);
+    fifo.push(purchase2);
+    fifo.push(purchase3);
+    fifo.push(purchase4);
 
-//destructor function
-Queue::~Queue()
-{
-    delete[] Contents;
-}
+    // remove shares from stack and queue
+    string stockName;
+    int numOfShares;
+    cout << "Enter the stock name: ";
+    cin >> stockName;
+    cout << "Enter the number of shares: ";
+    cin >> numOfShares;
 
-//function to check empty queue
-bool Queue::Empty() const
-{
-    return (Front == Back) ? true : false;
-}
+    double fifoPrice = 0.0;
+    double lifoPrice = 0.0;
 
-//function to check full
-bool Queue::Full() const
-{
-    return ((Back + 1) % (Queue_size + 1) == Front) ? true : false;
-}
-
-//function to remove element from the queue
-bool Queue::Remove(int& front_element)
-{
-    if (Empty())
-    {
-        return false;
-    }
-    else
-    {
-        front_element = Contents[Front];
-        Front = (Front + 1) % (Queue_size + 1);
-        return true;
-    }
-}
-
-//function to add elemt to a queue
-bool Queue::Add(const int& new_element)
-{
-    if (Full())
-    {
-        return false;
-    }
-    else
-    {
-        Contents[Back] = new_element;
-        Back = (Back + 1) % (Queue_size + 1);
-        return true;
-    }
-}
-
-//function to display the element in a queue
-void Queue::Display() const
-{
-    if (Empty())
-    {
-        cout << "The queue is empty. Therefore nothing to display" << endl;
-        return;
-    }
-    else
-    {
-        int i = Front;
-        cout << "Below is the content of the Queue:" << endl;
-        while (i != Back)
-        {
-            cout << Contents[i];  cout << " ";
-            i = (i + 1) % (Queue_size + 1);
+    // remove from FIFO queue
+    int remainingShares = numOfShares;
+    while (!fifo.empty() && remainingShares > 0) {
+        Purchase p = fifo.front();
+        fifo.pop();
+        if (p.stockName == stockName) {
+            int sharesToRemove = min(remainingShares, p.numOfShares);
+            fifoPrice += sharesToRemove * p.perSharePrice;
+            remainingShares -= sharesToRemove;
+            if (sharesToRemove < p.numOfShares) {
+                p.numOfShares -= sharesToRemove;
+                fifo.push(p);
+            }
         }
-        cout << endl;
-
     }
-};
 
-int main()
-{
-    int q_size;
-    cout << "Welcome! what is the Queue size you want to use for this operation?" << endl;
-    cin >> q_size;
-    
-    Queue my_queue(q_size);
-    char choice;
-    int i;
-
-    cout << "What operation do you want to perform? \nEnter 'a' to Add, \nEnter 'r' to Remove, \nEnter 'd' to Display and \nEnter 'q' to to exit the program " << endl;
-    cin >> choice;
-
-    while (choice != 'q')
-    {
-        switch (choice)
-        {
-        case 'a':
-            cout << "Enter new element: ";
-            cin >> i;
-            if (my_queue.Add(i))
-                cout << "Element Added succefully" << endl;
-            else
-                cout << "Queue is full please, delete some data" << endl;
-            break;
-
-        case 'r':
-            if (my_queue.Remove(i))
-                cout << "Element " << i << " removed succefully" << endl;
-            else
-                cout << "Queue is empty please, add some data before removing" << endl;
-            break;
-
-        case 'd':
-            my_queue.Display();
-            break;
-
-        default:
-            cout << "Ivalid request please try again" << endl;
-            break;
+    // remove from LIFO stack
+    stack<Purchase> lifoCopy = lifo;
+    remainingShares = numOfShares;
+    while (!lifoCopy.empty() && remainingShares > 0) {
+        Purchase p = lifoCopy.top();
+        lifoCopy.pop();
+        if (p.stockName == stockName) {
+            int sharesToRemove = min(remainingShares, p.numOfShares);
+            lifoPrice += sharesToRemove * p.perSharePrice;
+            remainingShares -= sharesToRemove;
+            if (sharesToRemove < p.numOfShares) {
+                p.numOfShares -= sharesToRemove;
+                lifo.push(p);
+            }
         }
-        // this line will keep prompting the user for the right input
-        cin >> choice;
     }
+
+    if (remainingShares > 0) {
+        cout << "Could not sell " << remainingShares << " shares of " << stockName << endl;
+    } else {
+        cout << "FIFO price for " << numOfShares << " shares of " << stockName << " is " << fifoPrice/numOfShares << endl;
+        cout << "LIFO price for " << numOfShares << " shares of " << stockName << " is " << lifoPrice/numOfShares << endl;
+    }
+
     return 0;
-
 }
