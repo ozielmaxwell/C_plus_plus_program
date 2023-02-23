@@ -15,104 +15,94 @@ int main() {
     stack<Purchase> lifo;
     queue<Purchase> fifo;
 
-    // Asking the user what operation he want
-    cout << "Welcome to share buy and sell using LIFO and FIFO: \nEnter 1 to BUY share or \nEnter 2 to find LIFO and FIFO or \nEnter 3 to sell your share \nEnter 0 to quit" << endl;
+
+    cout << "Enter 1 to enter a purchase" << endl;
+    cout << "Enter 2 to find the LIFO and FIFO price" << endl;
+    cout << "Enter 3 to make a sale" << endl;
+    cout << "Enter 4 to exit" << endl;
     int choice;
+
     cin >> choice;
-    while(choice != 0) {
-        string stockName;
-        int numOfShares;
-        switch (choice)
+    if (choice == 1) {
+        
+        while (true) 
         {
-            
-            case 1:
-                while (true) {
-                    // Get purchase data
-                    string name;
-                    char more;
-                    int shares;
-                    double pricePerShare;
-                    cout << "Name of stock: ";
-                    cin >> name;
-                    cout << "Number of shares: ";
-                    cin >> shares;
-                    cout << "Price per share: ";
-                    cin >> pricePerShare;
-                    cout << "Do you still want to buy share? y or n: ";
-                    cin >> more;
-                    if (more != 'y')
-                        break;
-                    // Add purchase to data structures
-                    Purchase p = { name, shares, pricePerShare };
-                    fifo.push(p);
-                    lifo.push(p);
-                    string stockName;
-                    int numOfShares;
-                }
+            // Get purchase data
+            string name;
+            int shares;
+            double pricePerShare;
+            cout << "Name of stock: ";
+            cin >> name;
+            cout << "Number of shares: ";
+            cin >> shares;
+            cout << "Price per share: ";
+            cin >> pricePerShare;
+            // Add purchase to data structures
+            Purchase p = { name, shares, pricePerShare };
+            fifo.push(p);
+            lifo.push(p);
+            cout << "Share added succeffully" << endl;
+            cout << "Press 0 to end buying of share or 1 to buy more: ";
+            int i;
+            cin >> i;
+            if (i == 0)
                 break;
 
-            case 2:
-                cout << "Average LIFO price: " << endl;
-                cout << "Average FIFO price: " << endl;
-                break;
-            case 3:
-                // remove shares from stack and queue
-                
-                cout << "Enter the stock name: ";
-                cin >> stockName;
-                cout << "Enter the number of shares: ";
-                cin >> numOfShares;
-                double fifoPrice = 0.0;
-                double lifoPrice = 0.0;
-
-                // remove from FIFO queue
-                int remainingShares = numOfShares;
-                while (!fifo.empty() && remainingShares > 0) {
-                    Purchase p = fifo.front();
-                    fifo.pop();
-                    if (p.stockName == stockName) {
-                        int sharesToRemove = min(remainingShares, p.numOfShares);
-                        fifoPrice += sharesToRemove * p.perSharePrice;
-                        remainingShares -= sharesToRemove;
-                        if (sharesToRemove < p.numOfShares) {
-                            p.numOfShares -= sharesToRemove;
-                            fifo.push(p);
-                        }
-                    }
-                }
-
-                // remove from LIFO stack
-                stack<Purchase> lifoCopy = lifo;
-                remainingShares = numOfShares;
-                while (!lifoCopy.empty() && remainingShares > 0) {
-                    Purchase p = lifoCopy.top();
-                    lifoCopy.pop();
-                    if (p.stockName == stockName) {
-                        int sharesToRemove = min(remainingShares, p.numOfShares);
-                        lifoPrice += sharesToRemove * p.perSharePrice;
-                        remainingShares -= sharesToRemove;
-                        if (sharesToRemove < p.numOfShares) {
-                            p.numOfShares -= sharesToRemove;
-                            lifo.push(p);
-                        }
-                    }
-                }
-
-                if (remainingShares > 0) {
-                    cout << "Could not sell " << remainingShares << " shares of " << stockName << endl;
-                }
-                else {
-                    cout << "FIFO price for " << numOfShares << " shares of " << stockName << " is " << fifoPrice / numOfShares << endl;
-                    cout << "LIFO price for " << numOfShares << " shares of " << stockName << " is " << lifoPrice / numOfShares << endl;
-                }
-                break;
-            default:
-                cout << "Invalid seletion. Please try again" << endl;
-                break;
         }
-        cout << "Welcome to share buy and sell using LIFO and FIFO: \nEnter 1 to BUY share or \nEnter 2 to find LIFO and FIFO or \nEnter 3 to sell your share \nEnter 0 to quit" << endl;
         cin >> choice;
     }
- 
+
+    // remove shares from stack and queue
+    string stockName;
+    int numOfShares;
+    cout << "Enter the stock name: ";
+    cin >> stockName;
+    cout << "Enter the number of shares: ";
+    cin >> numOfShares;
+
+    double fifoPrice = 0.0;
+    double lifoPrice = 0.0;
+
+    // remove from FIFO queue
+    int remainingShares = numOfShares;
+    while (!fifo.empty() && remainingShares > 0) {
+        Purchase p = fifo.front();
+        fifo.pop();
+        if (p.stockName == stockName) {
+            int sharesToRemove = min(remainingShares, p.numOfShares);
+            fifoPrice += sharesToRemove * p.perSharePrice;
+            remainingShares -= sharesToRemove;
+            if (sharesToRemove < p.numOfShares) {
+                p.numOfShares -= sharesToRemove;
+                fifo.push(p);
+            }
+        }
+    }
+
+    // remove from LIFO stack
+    stack<Purchase> lifoCopy = lifo;
+    remainingShares = numOfShares;
+    while (!lifoCopy.empty() && remainingShares > 0) {
+        Purchase p = lifoCopy.top();
+        lifoCopy.pop();
+        if (p.stockName == stockName) {
+            int sharesToRemove = min(remainingShares, p.numOfShares);
+            lifoPrice += sharesToRemove * p.perSharePrice;
+            remainingShares -= sharesToRemove;
+            if (sharesToRemove < p.numOfShares) {
+                p.numOfShares -= sharesToRemove;
+                lifo.push(p);
+            }
+        }
+    }
+
+    if (remainingShares > 0) {
+        cout << "Could not sell " << remainingShares << " shares of " << stockName << endl;
+    }
+    else {
+        cout << "FIFO price for " << numOfShares << " shares of " << stockName << " is " << fifoPrice / numOfShares << endl;
+        cout << "LIFO price for " << numOfShares << " shares of " << stockName << " is " << lifoPrice / numOfShares << endl;
+    }
+
     return 0;
 }
