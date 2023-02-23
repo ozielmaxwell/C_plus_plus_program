@@ -1,7 +1,59 @@
-STRIDE analysis for a drink vending machine:
-Spoofing: The vending machine could be vulnerable to spoofing attacks, where an attacker impersonates a legitimate user or vending machine service operator or maintenance operator to gain unauthorized access to the machine or to steal drinks. 
-Tampering: The vending machine could also be vulnerable to tampering, where an attacker physically alters the machine to gain unauthorized access or to steal drinks. For example, an attacker could try to break into the machine to steal the drink or damage the card reader slot to make it easier to steal drinks.
-Repudiation: There is a risk that a user could repudiate a transaction or deny that they made a purchase from the vending machine. For example, a user could claim that the machine did not dispense the correct drink.
-Information Disclosure: The vending machine could be vulnerable to information disclosure attacks, where an attacker could gain access to sensitive information such as the inventory levels or sales data. For example, an attacker could use a network scanner to intercept and steal sensitive data being transmitted between the machine and the central server.
-Denial of Service: A denial of service attack could be launched against the vending machine, either by physically damaging the machine or by flooding the machine with requests in an attempt to overload it and prevent legitimate users from accessing it.
-Elevation of Privilege: There is a risk that an attacker could elevate their privileges on the vending machine to gain unauthorized access or control. For example, an attacker could exploit a vulnerability in the software running on the machine to gain service operator or maintenance access and modify the inventory or card top up settings.
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct Purchase {
+    string stockName;
+    int numOfShares;
+    double perSharePrice;
+};
+
+// function to compute the average price of a particular stock name
+double avgPrice(string stockName, queue<Purchase> q) {
+    double totalPrice = 0;
+    int count = 0;
+
+    while (!q.empty()) {
+        if (q.front().stockName == stockName) {
+            totalPrice += q.front().numOfShares * q.front().perSharePrice;
+            count += q.front().numOfShares;
+        }
+        q.pop();
+    }
+
+    if (count == 0) {
+        cout << "No purchases found for " << stockName << endl;
+        return 0;
+    }
+
+    return totalPrice / count;
+}
+
+int main() {
+    queue<Purchase> lifo, fifo;
+
+    // fill data structures with purchase data
+    Purchase purchase1 = {"MSFT", 100, 200.39};
+    Purchase purchase2 = {"GME", 500, 9.39};
+    Purchase purchase3 = {"MSFT", 250, 214.22};
+    Purchase purchase4 = {"MSFT", 300, 222.59};
+    lifo.push(purchase1);
+    lifo.push(purchase2);
+    lifo.push(purchase3);
+    lifo.push(purchase4);
+    fifo.push(purchase1);
+    fifo.push(purchase2);
+    fifo.push(purchase3);
+    fifo.push(purchase4);
+
+    // calculate average price of MSFT for LIFO queue
+    double avgPriceLIFO = avgPrice("MSFT", lifo);
+    cout << "Average price of MSFT in LIFO queue: $" << avgPriceLIFO << endl;
+
+    // calculate average price of GME for FIFO queue
+    double avgPriceFIFO = avgPrice("GME", fifo);
+    cout << "Average price of GME in FIFO queue: $" << avgPriceFIFO << endl;
+
+    return 0;
+}
